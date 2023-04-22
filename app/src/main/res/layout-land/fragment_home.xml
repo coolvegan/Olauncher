@@ -46,9 +46,27 @@
             android:paddingHorizontal="2dp"
             android:textSize="@dimen/date_size"
             tools:text="Thu, 30 Dec" />
+
+        <TextView
+            android:id="@+id/weather"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-light"
+            android:scrollHorizontally="false"
+            android:text="@string/weather"
+            android:textAlignment="textEnd"
+            android:textAllCaps="false"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textSize="@dimen/weather_size"
+            android:visibility="visible"
+            tools:visibility="visible" />
+
     </LinearLayout>
 
     <!-- Home apps-->
+
+    <!-- First run tips -->
+
     <LinearLayout
         android:id="@+id/homeAppsLayout"
         android:layout_width="match_parent"
@@ -148,7 +166,6 @@
 
     </LinearLayout>
 
-    <!-- First run tips -->
     <LinearLayout
         android:id="@+id/firstRunTips"
         android:layout_width="match_parent"

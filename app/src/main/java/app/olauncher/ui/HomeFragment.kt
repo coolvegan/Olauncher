@@ -1,41 +1,61 @@
 package app.olauncher.ui
 
+import android.Manifest
 import android.app.admin.DevicePolicyManager
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.BatteryManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Vibrator
+import android.util.Log
 import android.view.*
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import app.olauncher.BuildConfig
 import app.olauncher.MainViewModel
 import app.olauncher.R
 import app.olauncher.data.AppModel
 import app.olauncher.data.Constants
 import app.olauncher.data.Prefs
+import app.olauncher.data.WeatherAPI
 import app.olauncher.databinding.FragmentHomeBinding
 import app.olauncher.helper.*
 import app.olauncher.listener.OnSwipeTouchListener
 import app.olauncher.listener.ViewSwipeTouchListener
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
+import java.io.IOException
 import java.text.SimpleDateFormat
+import java.time.LocalTime
 import java.util.*
 
-class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener {
 
+class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener {
     private lateinit var prefs: Prefs
     private lateinit var viewModel: MainViewModel
     private lateinit var deviceManager: DevicePolicyManager
     private lateinit var vibrator: Vibrator
-
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    val client = OkHttpClient()
+
+
+
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
@@ -43,6 +63,7 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
         super.onViewCreated(view, savedInstanceState)
         prefs = Prefs(requireContext())
         viewModel = activity?.run {
@@ -60,6 +81,7 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
 
     override fun onResume() {
         super.onResume()
+        populateWeather()
         populateHomeScreen(false)
         viewModel.isOlauncherDefault()
         if (prefs.showStatusBar) showStatusBar()
@@ -121,6 +143,9 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
         viewModel.toggleDateTime.observe(viewLifecycleOwner) {
             populateDateTime()
         }
+        viewModel.toggleWeather.observe(viewLifecycleOwner){
+            populateWeather()
+        }
     }
 
     private fun initSwipeTouchListener() {
@@ -140,6 +165,7 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
         binding.lock.setOnClickListener(this)
         binding.clock.setOnClickListener(this)
         binding.date.setOnClickListener(this)
+        binding.weather.setOnClickListener(this)
         binding.setDefaultLauncher.setOnClickListener(this)
     }
 
@@ -163,6 +189,7 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
         binding.date.isVisible = Constants.DateTime.isDateVisible(prefs.dateTimeVisibility)
 
         var dateText = SimpleDateFormat("EEE, d MMM", Locale.getDefault()).format(Date())
+
         if (!prefs.showStatusBar) {
             val battery = (requireContext().getSystemService(Context.BATTERY_SERVICE) as BatteryManager)
                 .getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
@@ -171,10 +198,82 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
         binding.date.text = dateText.replace(".,", ",")
     }
 
+    private fun getLocation(callback: (String)->Unit)  {
+        val lastLocation = fusedLocationClient.lastLocation
+        if(prefs.weatherVisibility != Constants.Weather.OFF) {
+            if (ActivityCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    requireActivity(),
+                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                    101
+                )
+            }
+        }
+        lastLocation.addOnSuccessListener {
+            if (it != null) {
+                val latitude = String.format("%.2f", it.latitude).replace(",", ".")
+                val longitude = String.format("%.2f", it.longitude).replace(",", ".")
+                val restQueryStr = latitude + "," + longitude
+                callback(restQueryStr)
+            }
+        }
+    }
+
+    private fun getWeatherData(coordinates:String, callback: (WeatherAPI) -> Unit){
+        val request = Request.Builder()
+            .url("https://weatherapi-com.p.rapidapi.com/current.json?q="+coordinates)
+            .get()
+            .addHeader("X-RapidAPI-Key", BuildConfig.API_KEY )
+            .addHeader("X-RapidAPI-Host", "weatherapi-com.p.rapidapi.com")
+            .build()
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+
+            }
+            override fun onResponse(call: Call, response: Response) {
+                response.use {
+                    if (!response.isSuccessful) throw IOException("Unexpected code $response")
+                    var jsonstr = response.body()?.string()
+                    if(jsonstr != null){
+                        val weather = WeatherAPI.fromJson(jsonstr)
+                        callback(weather)
+                    }
+                }
+            }
+        })
+    }
+    private fun populateWeather() {
+        binding.weather.isVisible = prefs.weatherVisibility != Constants.Weather.OFF
+        binding.weather.text = prefs.weatherString
+        if(prefs.weatherVisibility == Constants.Weather.OFF){
+            prefs.weatherString = ""
+            prefs.lastWeatherUpdate = 0
+            return
+        }
+        if(Calendar.getInstance().time.time > prefs.lastWeatherUpdate ){
+            var newDateOffset = Calendar.getInstance().time
+            newDateOffset.time+=1000*60*BuildConfig.WEATHER_UPDATE_INTERVAL_IN_MINUTES
+            prefs.lastWeatherUpdate = newDateOffset.time
+            getLocation { coordinates ->
+                getWeatherData(coordinates, {
+                    prefs.weatherString =
+                        it.location.name + " " + it.current.tempC + " °C, " + it.current.condition.text
+                    binding.weather.text = prefs.weatherString
+                })
+            }
+        }
+    }
+
+
+
     private fun populateHomeScreen(appCountUpdated: Boolean) {
         if (appCountUpdated) hideHomeApps()
         populateDateTime()
-
+        populateWeather()
         val homeAppsNum = prefs.homeAppsNum
         if (homeAppsNum == 0) return
 
@@ -447,6 +546,7 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
             }
 
             override fun onLongClick(view: View) {
+                Log.d(tag,"DIes ist ein test");
                 super.onLongClick(view)
                 textOnLongClick(view)
             }

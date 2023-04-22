@@ -23,13 +23,13 @@ import app.olauncher.databinding.ActivityMainBinding
 import app.olauncher.helper.*
 import java.util.*
 
+
 class MainActivity : AppCompatActivity() {
 
     private lateinit var prefs: Prefs
     private lateinit var navController: NavController
     private lateinit var viewModel: MainViewModel
     private lateinit var binding: ActivityMainBinding
-
     override fun onBackPressed() {
         if (navController.currentDestination?.id != R.id.mainFragment)
             super.onBackPressed()
@@ -43,6 +43,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         prefs = Prefs(this)
         AppCompatDelegate.setDefaultNightMode(prefs.appTheme)
         super.onCreate(savedInstanceState)

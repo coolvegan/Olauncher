@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
@@ -61,6 +62,7 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
         populateAlignment()
         populateStatusBar()
         populateDateTime()
+        populateWeather()
         populateSwipeApps()
         populateSwipeDownAction()
         populateActionHints()
@@ -77,6 +79,7 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
         if (view.id != R.id.alignmentBottom)
             binding.alignmentSelectLayout.visibility = View.GONE
 
+        Log.i("ONCLICK", "ONCLICK")
         when (view.id) {
             R.id.olauncherHiddenApps -> showHiddenApps()
             R.id.appInfo -> openAppInfo(requireContext(), android.os.Process.myUserHandle(), BuildConfig.APPLICATION_ID)
@@ -104,6 +107,7 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
             R.id.actionAccessibility -> openAccessibilityService()
             R.id.closeAccessibility -> toggleAccessibilityVisibility(false)
             R.id.notWorking -> requireContext().openUrl(Constants.URL_DOUBLE_TAP)
+            R.id.weather -> toggleWeather()
 
             R.id.maxApps0 -> updateHomeAppsNum(0)
             R.id.maxApps1 -> updateHomeAppsNum(1)
@@ -180,6 +184,7 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
         binding.alignmentRight.setOnClickListener(this)
         binding.alignmentBottom.setOnClickListener(this)
         binding.statusBar.setOnClickListener(this)
+        binding.weather.setOnClickListener(this)
         binding.dateTime.setOnClickListener(this)
         binding.dateTimeOn.setOnClickListener(this)
         binding.dateTimeOff.setOnClickListener(this)
@@ -274,7 +279,7 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
     }
 
     private fun toggleStatusBar() {
-        prefs.showStatusBar = !prefs.showStatusBar
+        prefs.weatherVisibility = !prefs.weatherVisibility
         populateStatusBar()
     }
 
@@ -304,6 +309,20 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
         )
     }
 
+    private fun toggleWeather() {
+        prefs.weatherVisibility = !prefs.weatherVisibility
+        populateWeather()
+        viewModel.toggleWeather()
+    }
+
+    private fun populateWeather() {
+        if(prefs.weatherVisibility){
+           binding.weather.text = "On"
+        } else {
+            binding.weather.text = "Off"
+        }
+
+    }
     private fun showStatusBar() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
             requireActivity().window.insetsController?.show(WindowInsets.Type.statusBars())

@@ -17,10 +17,15 @@ android {
         applicationId "app.olauncher"
         minSdkVersion 23
         targetSdkVersion 32
-        versionCode 60
-        versionName "v4.0.2"
+        versionCode 59
+        versionName "v4.0.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        //Read API Key for WeatherAPI in local.properties
+        Properties properties = new Properties()
+        properties.load(project.rootProject.file('local.properties').newDataInputStream())
+        buildConfigField "String", "API_KEY", "\"${properties.getProperty('API_KEY')}\""
+        buildConfigField "int", "WEATHER_UPDATE_INTERVAL_IN_MINUTES", "${properties.getProperty('WEATHER_UPDATE_INTERVAL_IN_MINUTES')}"
     }
 
     buildTypes {
@@ -57,4 +62,9 @@ dependencies {
 
     // Work Manager
     implementation "androidx.work:work-runtime-ktx:2.7.1"
+    // Location Services
+    implementation 'com.google.android.gms:play-services-location:21.0.1'
+    implementation 'com.squareup.okhttp3:okhttp:3.10.0'
+    // Deserialize Json / DataClass
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.14.+"
 }

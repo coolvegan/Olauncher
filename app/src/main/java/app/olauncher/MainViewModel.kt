@@ -5,6 +5,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.pm.LauncherApps
 import android.os.UserHandle
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -19,10 +20,10 @@ import java.util.concurrent.TimeUnit
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val appContext by lazy { application.applicationContext }
     private val prefs = Prefs(appContext)
-
     val firstOpen = MutableLiveData<Boolean>()
     val refreshHome = MutableLiveData<Boolean>()
     val toggleDateTime = MutableLiveData<Unit>()
+    val toggleWeather = MutableLiveData<Unit>()
     val updateSwipeApps = MutableLiveData<Any>()
     val appList = MutableLiveData<List<AppModel>?>()
     val hiddenApps = MutableLiveData<List<AppModel>?>()
@@ -122,6 +123,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun toggleDateTime() {
         toggleDateTime.postValue(Unit)
+    }
+
+    fun toggleWeather(){
+        toggleWeather.postValue(Unit)
     }
 
     private fun updateSwipeApps() {

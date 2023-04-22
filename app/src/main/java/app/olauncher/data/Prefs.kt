@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.view.Gravity
 import androidx.appcompat.app.AppCompatDelegate
+import java.util.Calendar
 
 class Prefs(context: Context) {
     private val PREFS_FILENAME = "app.olauncher"
@@ -23,6 +24,7 @@ class Prefs(context: Context) {
     private val APP_LABEL_ALIGNMENT = "APP_LABEL_ALIGNMENT"
     private val STATUS_BAR = "STATUS_BAR"
     private val DATE_TIME_VISIBILITY = "DATE_TIME_VISIBILITY"
+    private val WEATHER_VISIBILITY = "WEATHER_VISIBILITY"
     private val SWIPE_LEFT_ENABLED = "SWIPE_LEFT_ENABLED"
     private val SWIPE_RIGHT_ENABLED = "SWIPE_RIGHT_ENABLED"
     private val SCREEN_TIMEOUT = "SCREEN_TIMEOUT"
@@ -77,9 +79,18 @@ class Prefs(context: Context) {
     private val APP_ACTIVITY_CLASS_NAME_SWIPE_RIGHT = "APP_ACTIVITY_CLASS_NAME_SWIPE_RIGHT"
     private val APP_USER_SWIPE_LEFT = "APP_USER_SWIPE_LEFT"
     private val APP_USER_SWIPE_RIGHT = "APP_USER_SWIPE_RIGHT"
+    private val LAST_WEATHER_UPDATE = "LAST_WEATHER_UPDATE"
+    private val WEATHER_STRING = "WEATHER_STRING"
 
     private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_FILENAME, 0);
 
+
+    var weatherString: String
+        get() = prefs.getString(WEATHER_STRING, "").toString()
+        set(value) = prefs.edit().putString(WEATHER_STRING, value).apply()
+    var lastWeatherUpdate: Long
+        get() = prefs.getLong(LAST_WEATHER_UPDATE, 0)
+        set(value) = prefs.edit().putLong(LAST_WEATHER_UPDATE, value).apply()
     var firstOpen: Boolean
         get() = prefs.getBoolean(FIRST_OPEN, true)
         set(value) = prefs.edit().putBoolean(FIRST_OPEN, value).apply()
@@ -135,7 +146,9 @@ class Prefs(context: Context) {
     var dateTimeVisibility: Int
         get() = prefs.getInt(DATE_TIME_VISIBILITY, Constants.DateTime.ON)
         set(value) = prefs.edit().putInt(DATE_TIME_VISIBILITY, value).apply()
-
+    var weatherVisibility: Boolean
+        get() = prefs.getBoolean(WEATHER_VISIBILITY, Constants.Weather.ON)
+        set(value) = prefs.edit().putBoolean(WEATHER_VISIBILITY, value).apply()
     var swipeLeftEnabled: Boolean
         get() = prefs.getBoolean(SWIPE_LEFT_ENABLED, true)
         set(value) = prefs.edit().putBoolean(SWIPE_LEFT_ENABLED, value).apply()

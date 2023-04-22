@@ -21,6 +21,15 @@ object Constants {
         }
     }
 
+    object Weather {
+        const val OFF = false
+        const val ON = true
+
+        fun isWeatherVisible(weatherVisibility: Boolean): Boolean {
+            return weatherVisibility == ON
+        }
+    }
+
     object SwipeDownAction {
         const val SEARCH = 1
         const val NOTIFICATIONS = 2
