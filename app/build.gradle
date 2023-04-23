@@ -31,7 +31,8 @@ android {
     buildTypes {
         release {
             debuggable false
-            minifyEnabled true
+            //this must be off, otherwise the json will be wrong
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {

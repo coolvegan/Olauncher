@@ -232,12 +232,11 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
             .build()
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-
             }
             override fun onResponse(call: Call, response: Response) {
                 response.use {
                     if (!response.isSuccessful) throw IOException("Unexpected code $response")
-                    var jsonstr = response.body()?.string()
+                    val jsonstr = it.body()?.string().toString()
                     if(jsonstr != null){
                         val weather = WeatherAPI.fromJson(jsonstr)
                         callback(weather)

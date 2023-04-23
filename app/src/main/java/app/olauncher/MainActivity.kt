@@ -57,6 +57,7 @@ class MainActivity : AppCompatActivity() {
             prefs.firstOpen = false
         }
 
+        prefs.lastWeatherUpdate = 0
         initClickListeners()
         initObservers(viewModel)
         viewModel.getAppList()

@@ -279,7 +279,7 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
     }
 
     private fun toggleStatusBar() {
-        prefs.weatherVisibility = !prefs.weatherVisibility
+        prefs.showStatusBar = !prefs.showStatusBar
         populateStatusBar()
     }
 
