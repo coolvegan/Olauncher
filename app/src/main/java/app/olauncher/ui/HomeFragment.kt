@@ -230,6 +230,8 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
             .addHeader("X-RapidAPI-Key", BuildConfig.API_KEY )
             .addHeader("X-RapidAPI-Host", "weatherapi-com.p.rapidapi.com")
             .build()
+
+
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
             }
@@ -239,6 +241,7 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
                     val jsonstr = it.body()?.string().toString()
                     if(jsonstr != null){
                         val weather = WeatherAPI.fromJson(jsonstr)
+                        Log.d("Marco",weather.toJson());
                         callback(weather)
                     }
                 }
@@ -254,9 +257,11 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
             return
         }
         if(Calendar.getInstance().time.time > prefs.lastWeatherUpdate ){
+
             var newDateOffset = Calendar.getInstance().time
-            newDateOffset.time+=1000*60*BuildConfig.WEATHER_UPDATE_INTERVAL_IN_MINUTES
+            newDateOffset.time+=1000*60*BuildConfig.WEATHER_UPDATE_INTERVAL_IN_MINUTES.toInt()
             prefs.lastWeatherUpdate = newDateOffset.time
+
             getLocation { coordinates ->
                 getWeatherData(coordinates, {
                     prefs.weatherString =
@@ -264,6 +269,8 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
                     binding.weather.text = prefs.weatherString
                 })
             }
+
+
         }
     }
 

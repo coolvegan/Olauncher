@@ -20,7 +20,7 @@ data class WeatherAPI (
     @get:JsonProperty(required=true)@field:JsonProperty(required=true)
     val current: Current
 ) {
-    fun toJson() = mapper.writeValueAsString(this)
+    fun toJson() = mapper.writeValueAsString(this)!!
 
     companion object {
         fun fromJson(json: String) = mapper.readValue<WeatherAPI>(json)
