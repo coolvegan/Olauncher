@@ -41,6 +41,19 @@
                 android:textSize="@dimen/time_size"
                 tools:text="02:34" />
 
+            <TextView
+                android:id="@+id/textToNewView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:paddingLeft="@dimen/text_large"
+                android:paddingRight="@dimen/text_large"
+                android:text="Franci und ich trainieren drei mal die Woche im Fitnessstudio."
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                tools:visibility="visible" />
 
 
         </LinearLayout>

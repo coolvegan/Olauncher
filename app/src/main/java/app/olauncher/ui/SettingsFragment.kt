@@ -16,6 +16,7 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import app.olauncher.BuildConfig
 import app.olauncher.MainViewModel
@@ -25,6 +26,11 @@ import app.olauncher.data.Prefs
 import app.olauncher.databinding.FragmentSettingsBinding
 import app.olauncher.helper.*
 import app.olauncher.listener.DeviceAdmin
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.json.Json
 
 class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListener {
 
@@ -32,7 +38,7 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
     private lateinit var viewModel: MainViewModel
     private lateinit var deviceManager: DevicePolicyManager
     private lateinit var componentName: ComponentName
-
+    private lateinit var marcoApi: MarcoApi
     private var _binding: FragmentSettingsBinding? = null
     private val binding get() = _binding!!
 
@@ -54,6 +60,7 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
         checkAdminPermission()
 
         binding.homeAppsNum.text = prefs.homeAppsNum.toString()
+
         populateKeyboardText()
         populateLockSettings()
         populateWallpaperText()
@@ -68,6 +75,13 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
         populateActionHints()
         initClickListeners()
         initObservers()
+
+
+
+        _binding?.editTextPassword?.setText(BuildConfig.API_PASSWORD)
+        _binding?.editTextUsername?.setText(BuildConfig.API_USERNAME)
+        _binding?.loginButton?.setOnClickListener { loginToMarcoApi() }
+
     }
 
     override fun onClick(view: View) {
@@ -290,6 +304,32 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
         } else {
             hideStatusBar()
             binding.statusBar.text = getString(R.string.off)
+        }
+    }
+
+    @OptIn(InternalSerializationApi::class)
+    private fun loginToMarcoApi(){
+        val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+            Log.d("LOGIN", "FAILED")
+        }
+
+        Log.d("LOGIN", "LOGIN")
+        marcoApi = MarcoApi()
+        lifecycleScope.launch(exceptionHandler) {
+            try {
+                val deferredData = async { marcoApi.login()}
+                val result = deferredData.await()
+                try {
+                    val apikey = Json.decodeFromString<ApiKey>(result)
+                    if (!apikey.Apikey.equals("")){
+                        context?.showToast("Login Erfolgreich", Toast.LENGTH_LONG)
+                    }
+                }catch (e: Exception){
+
+                }
+            } catch (e: Exception) {
+                context?.showToast("Fehler: ${e.message}", Toast.LENGTH_LONG)
+            }
         }
     }
 

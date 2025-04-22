@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.SET_WALLPAPER" />
     <uses-permission android:name="android.permission.EXPAND_STATUS_BAR" />
-    <!--<uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />-->
-    <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
-    <!--For downloading wallpapers-->
-    <uses-permission android:name="android.permission.INTERNET" />
-    <!--For opening alarm app-->
-    <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
-    <!-- to get the geodata for weather api -->
+    <uses-permission
+        android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
+    <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" /> <!-- For downloading wallpapers -->
+    <uses-permission android:name="android.permission.INTERNET" /> <!-- For opening alarm app -->
+    <uses-permission android:name="com.android.alarm.permission.SET_ALARM" /> <!-- to get the geodata for weather api -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />
     <uses-permission android:name="android.hardware.location.gps" />
@@ -28,7 +28,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="UnusedAttribute">
-
+        <activity
+            android:name=".TodoActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Todo"
+            android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:configChanges="uiMode"
@@ -45,7 +50,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        <activity
+            android:name=".NewWindowActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".helper.FakeHomeActivity"
             android:enabled="false"
@@ -68,6 +78,7 @@
             <meta-data
                 android:name="android.app.device_admin"
                 android:resource="@xml/policies" />
+
             <intent-filter>
                 <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
             </intent-filter>
@@ -82,11 +93,11 @@
             <meta-data
                 android:name="android.accessibilityservice"
                 android:resource="@xml/accessibility_service_config" />
+
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService" />
             </intent-filter>
         </service>
-
     </application>
 
 </manifest>

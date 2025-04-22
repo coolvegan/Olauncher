@@ -2,6 +2,7 @@ package app.olauncher
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.ComponentCaller
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
@@ -9,20 +10,22 @@ import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.view.View
 import android.view.WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import androidx.work.Clock
 import app.olauncher.data.Constants
 import app.olauncher.data.Prefs
 import app.olauncher.databinding.ActivityMainBinding
 import app.olauncher.helper.*
 import java.util.*
-
 
 class MainActivity : AppCompatActivity() {
 
@@ -43,7 +46,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
         prefs = Prefs(this)
         AppCompatDelegate.setDefaultNightMode(prefs.appTheme)
         super.onCreate(savedInstanceState)
@@ -76,9 +78,9 @@ class MainActivity : AppCompatActivity() {
         super.onUserLeaveHint()
     }
 
-    override fun onNewIntent(intent: Intent?) {
+    override fun onNewIntent(intent: Intent, caller: ComponentCaller) {
         backToHomeScreen()
-        super.onNewIntent(intent)
+        super.onNewIntent(intent, caller)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -91,6 +93,7 @@ class MainActivity : AppCompatActivity() {
         }
         recreate()
     }
+
 
     private fun initClickListeners() {
         binding.okay.setOnClickListener {
@@ -160,5 +163,14 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun registerNewWindowListener(){
+        val myNewWindow  = binding.root.findViewById<TextView>(R.id.textToNewView)
+        myNewWindow?.setOnClickListener {
+            val intent = Intent(this, NewWindowActivity::class.java)
+            startActivity(intent)
+        }
+
     }
 }

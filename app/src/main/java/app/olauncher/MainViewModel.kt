@@ -162,6 +162,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         } catch (e: Exception) {
             appContext.showToast("Unable to launch app")
         }
+
+
     }
 
     fun getAppList(includeHiddenApps: Boolean = false) {

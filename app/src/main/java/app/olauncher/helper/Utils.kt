@@ -29,6 +29,7 @@ import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatDelegate
 import app.olauncher.BuildConfig
+import app.olauncher.NewWindowActivity
 import app.olauncher.R
 import app.olauncher.data.AppModel
 import app.olauncher.data.Constants
@@ -421,6 +422,7 @@ fun openAlarmApp(context: Context) {
         Log.d("TAG", e.toString())
     }
 }
+
 
 fun openCalendar(context: Context) {
     try {

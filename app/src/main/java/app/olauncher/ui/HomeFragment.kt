@@ -3,6 +3,7 @@ package app.olauncher.ui
 import android.Manifest
 import android.app.admin.DevicePolicyManager
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.BatteryManager
 import android.os.Build
@@ -21,6 +22,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import app.olauncher.BuildConfig
 import app.olauncher.MainViewModel
+import app.olauncher.NewWindowActivity
 import app.olauncher.R
 import app.olauncher.data.AppModel
 import app.olauncher.data.Constants
@@ -37,9 +39,9 @@ import okhttp3.Callback
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
+
 import java.io.IOException
 import java.text.SimpleDateFormat
-import java.time.LocalTime
 import java.util.*
 
 
@@ -81,12 +83,15 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
 
     override fun onResume() {
         super.onResume()
+        RegisterNewWindowActivtyOnClick()
         populateWeather()
         populateHomeScreen(false)
         viewModel.isOlauncherDefault()
         if (prefs.showStatusBar) showStatusBar()
         else hideStatusBar()
     }
+
+
 
     override fun onClick(view: View) {
         when (view.id) {
@@ -183,6 +188,15 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
         binding.homeApp8.gravity = horizontalGravity
     }
 
+    private fun RegisterNewWindowActivtyOnClick(){
+        val myNewWindow  = binding.root.findViewById<TextView>(R.id.textToNewView)
+        myNewWindow?.setOnClickListener {
+            val context = requireContext()
+            val intent = Intent(context,  NewWindowActivity::class.java)
+            startActivity(intent)
+        }
+    }
+
     private fun populateDateTime() {
         binding.dateTimeLayout.isVisible = prefs.dateTimeVisibility != Constants.DateTime.OFF
         binding.clock.isVisible = Constants.DateTime.isTimeVisible(prefs.dateTimeVisibility)
@@ -248,6 +262,8 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
             }
         })
     }
+
+
     private fun populateWeather() {
         binding.weather.isVisible = prefs.weatherVisibility != Constants.Weather.OFF
         binding.weather.text = prefs.weatherString
@@ -552,7 +568,6 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
             }
 
             override fun onLongClick(view: View) {
-                Log.d(tag,"DIes ist ein test");
                 super.onLongClick(view)
                 textOnLongClick(view)
             }
